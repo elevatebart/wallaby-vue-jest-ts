@@ -36,6 +36,7 @@ module.exports = function (wallaby) {
                 "^@/(.*)$": wallaby.projectCacheDir + "/src/$1"
             };
             wallaby.testFramework.configure(jestConfig);
-        }
+        },
+        debug: true
     }
 }

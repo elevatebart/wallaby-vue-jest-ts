@@ -8,4 +8,13 @@ describe('HelloWorld.vue', () => {
     expect(vm.$el.querySelector('.hello h1')!.textContent)
       .toEqual('Welcome to Your Vue.js App')
   })
+
+  it('should render correct contents', async () => {
+    const Constructor = Vue.extend(HelloWorld);
+    const vm = new Constructor().$mount();
+    (vm.$el.querySelector('.changer') as HTMLAnchorElement).click();
+    await Vue.nextTick();
+    expect(vm.$el.querySelector('.hello h1')!.textContent)
+      .toEqual('goodbye');
+  })
 })

@@ -1,5 +1,6 @@
 <template>
   <div class="hello">
+    <a class="changer" @click="setMsg('goodbye')">Change Message</a>
     <h1>{{ msg }}</h1>
     <h2>Essential Links</h2>
     <ul>
@@ -83,18 +84,22 @@
   </div>
 </template>
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
+import Vue from "vue";
+import Component from "vue-class-component";
 
 @Component
 export default class HelloWorld extends Vue {
-  msg = 'Welcome to Your Vue.js App'
+  msg = "Welcome to Your Vue.js App";
+  setMsg(msg: string): void {
+    this.msg = msg;
+  }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
+h1,
+h2 {
   font-weight: normal;
 }
 ul {
