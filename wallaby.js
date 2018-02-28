@@ -1,42 +1,44 @@
-const babelOptions = { sourceMap: true, plugins: ["transform-es2015-modules-commonjs"], presets: ['babel-preset-jest'] };
+module.exports = () => {
+  process.env.BABEL_ENV = 'test';
+  return {
+    files: [
+      'src/**/*',
+      { pattern: 'test/unit/jest.conf.js', instrument: false },
+      { pattern: 'test/unit/setup.js', instrument: false },
+      'tsconfig.json'
+    ],
 
-module.exports = function (wallaby) {
-    return {
-        files: [
-            { pattern: 'tsconfig.json', instrument: false },
-            { pattern: 'test/unit/jest.conf.js', instrument: false },
-            { pattern: 'src/**/*.*', load: false },
-        ],
+    tests: ['test/unit/**/*.spec.ts'],
 
-        compilers: {
-            '**/*.js': wallaby.compilers.babel(),
-            '**/*.vue': require('wallaby-vue-compiler')(wallaby.compilers.babel({})),
-            "**/*.ts?(x)": wallaby.compilers.typeScript({
-                module: "commonjs"
-            }),
-        },
+    env: {
+      type: 'node',
+      runner: 'node',
+    },
 
-        preprocessors: {
-            "**/*.js?(x)": file => require("babel-core").transform(file.content, babelOptions),
-        },
+    preprocessors: {
+      '**/*.js?(x)': file => require('babel-core').transform(
+        file.content,
+        {
+          sourceMap: true, compact: false, filename: file.path,
+          plugins: ['transform-es2015-modules-commonjs'], presets: ['babel-preset-jest']
+        })
+    },
 
-        tests: [
-            { pattern: 'test/unit/**/*.spec.ts', load: false }
-        ],
+    setup(wallaby) {
+      const jestConfig = require('./test/unit/jest.conf');
 
-        env: {
-            type: 'node',
-            runner: 'node'
-        },
+      delete jestConfig.rootDir;
+      delete jestConfig.mapCoverage;
+      jestConfig.setupFiles[0] = jestConfig.setupFiles[0].replace('<rootDir>', wallaby.projectCacheDir);
+      jestConfig.moduleNameMapper = {
+        '^@/components/([^\\.]*)$': wallaby.projectCacheDir + '/src/components/$1.vue',
+        '^@/(.*)$': wallaby.projectCacheDir + '/src/$1',
+      };
 
-        testFramework: 'jest',
-        setup: function () {
-            const jestConfig = require('./test/unit/jest.conf');
-            jestConfig.moduleNameMapper = {
-                "^@/(.*)$": wallaby.projectCacheDir + "/src/$1"
-            };
-            wallaby.testFramework.configure(jestConfig);
-        },
-        debug: true
-    }
-}
+      wallaby.testFramework.configure(jestConfig);
+    },
+
+    testFramework: 'jest',
+    debug: true
+  }
+};
